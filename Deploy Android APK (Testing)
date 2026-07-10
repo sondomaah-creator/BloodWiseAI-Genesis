@@ -1,0 +1,89 @@
+# 1. Navigate to your repository directory
+cd BloodWiseAI-Genesis
+
+# 2. Create the workflows directory if it doesn't exist
+mkdir -p .github/workflows
+
+# 3. Create the workflow file
+cat > .github/workflows/deploy-android-apk-skip-test.yml << 'EOF'
+name: Deploy Android APK (Skip Test)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Verify Flutter project structure
+        run: |
+          echo "Checking for Flutter project files..."
+          if [ ! -f pubspec.yaml ]; then
+            echo "ERROR: pubspec.yaml not found!"
+            echo "Repository contents:"
+            ls -la
+            exit 1
+          fi
+          echo "✓ pubspec.yaml found"
+          echo "✓ Flutter project structure verified"
+
+      - name: Cache Flutter packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.flutter
+          key: ${{ runner.os }}-flutter-${{ hashFiles('pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-flutter-
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build release APK
+        run: flutter build apk --release --verbose
+
+      - name: Verify APK build
+        run: |
+          echo "Checking APK output location..."
+          if [ ! -f build/app/outputs/flutter-apk/app-release.apk ]; then
+            echo "ERROR: APK file not found at expected location!"
+            echo "Build output directory contents:"
+            find build -type f -name "*.apk" 2>/dev/null || echo "No APK files found"
+            exit 1
+          fi
+          echo "✓ APK build successful"
+          ls -lh build/app/outputs/flutter-apk/app-release.apk
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BloodWiseAI-Genesis-release-apk-${{ github.run_number }}
+          path: build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 30
+          if-no-files-found: error
+EOF
+
+# 4. Stage the file
+git add .github/workflows/deploy-android-apk-skip-test.yml
+
+# 5. Commit with a clear message
+git commit -m "Add: Deploy Android APK workflow (Skip Test)"
+
+# 6. Push to your repository
+git push origin main
