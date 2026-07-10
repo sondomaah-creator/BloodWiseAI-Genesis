@@ -1,5 +1,5 @@
 # 1. Navigate to your repository directory
-cd BloodWiseAI-Genesis
+cd  bloodwiseai-genesis
 
 # 2. Create the workflows directory if it doesn't exist
 mkdir -p .github/workflows
@@ -73,7 +73,7 @@ jobs:
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: BloodWiseAI-Genesis-release-apk-${{ github.run_number }}
+          name:  bloodwiseai-genesis-release-apk-${{ github.run_number }}
           path: build/app/outputs/flutter-apk/app-release.apk
           retention-days: 30
           if-no-files-found: error
