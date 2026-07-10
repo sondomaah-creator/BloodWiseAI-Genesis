@@ -24,6 +24,18 @@ jobs:
           channel: stable
           cache: true
 
+      - name: Verify Flutter project structure
+        run: |
+          echo "Checking for Flutter project files..."
+          if [ ! -f pubspec.yaml ]; then
+            echo "ERROR: pubspec.yaml not found!"
+            echo "Repository contents:"
+            ls -la
+            exit 1
+          fi
+          echo "✓ pubspec.yaml found"
+          echo "✓ Flutter project structure verified"
+
       - name: Cache Flutter packages
         uses: actions/cache@v3
         with:
@@ -31,9 +43,6 @@ jobs:
           key: ${{ runner.os }}-flutter-${{ hashFiles('pubspec.lock') }}
           restore-keys: |
             ${{ runner.os }}-flutter-
-
-      - name: Create Android platform files
-        run: flutter create .
 
       - name: Install dependencies
         run: flutter pub get
@@ -44,7 +53,14 @@ jobs:
       - name: Verify APK build
         run: |
           echo "Checking APK output location..."
-          ls -lh build/app/outputs/flutter-apk/ || exit 1
+          if [ ! -f build/app/outputs/flutter-apk/app-release.apk ]; then
+            echo "ERROR: APK file not found at expected location!"
+            echo "Build output directory contents:"
+            find build -type f -name "*.apk" 2>/dev/null || echo "No APK files found"
+            exit 1
+          fi
+          echo "✓ APK build successful"
+          ls -lh build/app/outputs/flutter-apk/app-release.apk
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
