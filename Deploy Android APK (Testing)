@@ -1,5 +1,5 @@
 # 1. Navigate to your repository directory
-cd  bloodwiseai-genesis
+cd bloodwiseai-genesis
 
 # 2. Create the workflows directory if it doesn't exist
 mkdir -p .github/workflows
@@ -73,7 +73,7 @@ jobs:
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name:  bloodwiseai-genesis-release-apk-${{ github.run_number }}
+          name: bloodwiseai-genesis-release-apk-${{ github.run_number }}
           path: build/app/outputs/flutter-apk/app-release.apk
           retention-days: 30
           if-no-files-found: error
@@ -83,7 +83,7 @@ EOF
 git add .github/workflows/deploy-android-apk-skip-test.yml
 
 # 5. Commit with a clear message
-git commit -m "Add: Deploy Android APK workflow (Skip Test)"
+git commit -m "Fix: remove leading space in bloodwiseai-genesis names"
 
 # 6. Push to your repository
 git push origin main
