@@ -1,4 +1,4 @@
-name: Deploy Android APK (Skip Tests)
+name: Deploy Android APK (Skip Testing)
 
 on:
   workflow_dispatch:
